@@ -1,0 +1,53 @@
+# in Terminal App (Rechts-Click auf Windows-Zeichen in Taskleiste, mit Admin-Rechten starten)
+# diese Datei im Heim-Verzeichnis ( C:\Benutzer\xxx\ ) speichern, somit im Terminal anzeigbar über
+
+cat "Essential Commands.txt" 
+
+# commandos die einmal ausgeführt werden, kann man über mehrmaliges drücken der "hoch-gehen" Taste wieder aufrufen...
+#
+# Die Schritte 1-6 spätestens immer nach einem Windows-Update das einen Neustart erfordert ausführen (jeden 2. Mittwoch im Monat)
+
+#
+# 1) Microsoft Defender Offline-Scan, Suspend-Bitlocker falls für den Offline-Scan der Bitlocker-Schlüssel eingegeben werden soll...
+#
+
+Suspend-Bitlocker -MountPoint "C:" -RebootCount 1
+& Start-MpWDOScan
+
+#
+# 2) Windows Component-Store Inhalt prüfen
+#
+
+dism /online /cleanup-image /scanhealth
+
+# bei Fehlermeldung, danach Neustart und wieder prüfen
+
+dism /online /cleanup-image /restorehealth
+
+#
+# 3) Windows Component-Store Zugriffsrechte prüfen und reparieren
+#
+
+sfc /scannow
+
+# ggf. solange Wiederholen bis keine Fehler mehr gemeldet werden
+
+#
+# 4) Microsoft Defender Full-Scan mit 100% Geschwindigkeit
+#
+
+Set-MpPreference -ScanAvgCPULoadFactor 100
+Start-MpScan -ScanType FullScan 
+Set-MpPreference -ScanAvgCPULoadFactor 50
+
+#
+# 5) Microsoft Defender Bootsector-Scan
+#
+
+cmd
+"%ProgramFiles%\Windows Defender\MpCmdRun.exe" -Scan -BootSectorScan
+exit
+
+#
+# 6) danach Backup...
+#
